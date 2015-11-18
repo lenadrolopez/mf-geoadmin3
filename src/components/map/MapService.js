@@ -370,9 +370,8 @@ goog.require('ga_urlutils_service');
           layers: params.LAYERS,
           format: 'image/png',
           service: 'WMS',
-          version: '1.3.0',
           request: 'GetMap',
-          crs: 'CRS:84',
+          srs: 'EPSG:4326',
           bbox: '{westProjected},{southProjected},' +
                 '{eastProjected},{northProjected}',
           width: '256',
@@ -380,6 +379,13 @@ goog.require('ga_urlutils_service');
           styles: 'default',
           transparent: 'true'
         };
+
+        if (wmsParams.version == '1.1.1') {
+          wmsParams.srs = 'EPSG:4326';
+        } else {
+          wmsParams.crs = 'CRS:84';
+        }
+
         var extent = gaGlobalOptions.defaultExtent;
         return new Cesium.UrlTemplateImageryProvider({
           minimumRetrievingLevel: window.minimumRetrievingLevel,
@@ -390,19 +396,19 @@ goog.require('ga_urlutils_service');
           hasAlphaChannel: true,
           availableLevels: window.imageryAvailableLevels
         });
+
       };
 
       var Wms = function() {
 
         var createWmsLayer = function(params, options, index) {
           options = options || {};
-
           var source = new ol.source.ImageWMS({
             params: params,
             url: options.url,
-            ratio: options.ratio || 1
+            ratio: options.ratio || 1,
+            projection: options.projection
           });
-
           var layer = new ol.layer.Image({
             id: 'WMS||' + options.label + '||' + options.url + '||' +
                 params.LAYERS,
@@ -436,6 +442,9 @@ goog.require('ga_urlutils_service');
             label: getCapLayer.Title,
             extent: gaMapUtils.intersectWithDefaultExtent(getCapLayer.extent)
           };
+          if (getCapLayer.useReprojection) {
+            wmsOptions.projection = 'EPSG:4326';
+          }
           return createWmsLayer(wmsParams, wmsOptions);
         };
 
