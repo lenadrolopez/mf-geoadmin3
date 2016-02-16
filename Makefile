@@ -82,6 +82,10 @@ help:
 	@echo "- deploybranch     Deploys current branch to test (note: takes code from github)"
 	@echo "- deploybranchint  Deploys current branch to test and int (note: takes code from github)"
 	@echo "- deploybranchdemo Deploys current branch to test and demo (note: takes code from github)"
+	@echo "- s3upload         Uploads current build to S3"
+	@echo "- s3activate       Activates version on S3 with VERSION=xxxxxxxxx"
+	@echo "- s3list           Lists uploaded version to S3"
+	@echo "- s3delete         Deletes version VERSION=xxxxxx on S3"
 	@echo "- ol               Update ol.js and ol-debug.js "
 	@echo "- translate        Generate the translation files (requires db user pwd in ~/.pgpass: dbServer:dbPort:*:dbUser:dbUserPwd)"
 	@echo "- help             Display this help"
@@ -155,15 +159,21 @@ deployint: guard-SNAPSHOT
 deployprod: guard-SNAPSHOT
 	./scripts/deploysnapshot.sh $(SNAPSHOT) prod
 
-.PHONY: deploys3
-deploys3:
-	for dir in img lib locales style; do aws s3 cp --recursive --acl public-read  --profile ltbon prd/${dir}  s3://dummy-geoadmin/$(VERSION)/${dir}; done
-	$(foreach lang, $(LANGS), aws s3 cp  --acl public-read  --profile ltbon prd/cache/layersConfig.$(lang).json  s3://dummy-geoadmin/$(VERSION)/;)
-	$(foreach file, $(HTMLFILES), aws s3 cp   --profile ltbon --acl public-read  prd/$(file).html  s3://dummy-geoadmin/$(file).$(VERSION).html;)
-	aws s3 cp  --acl public-read  --profile ltbon prd/cache/services  s3://dummy-geoadmin/$(VERSION)/services
-	aws s3 cp --recursive --acl public-read  --profile ltbon src   s3://dummy-geoadmin/$(VERSION)/src
-	aws s3 cp  --acl public-read  --profile ltbon prd/cache/services  s3://dummy-geoadmin/$(VERSION)/src/services
-	$(foreach lang, $(LANGS), aws s3 cp  --acl public-read  --profile ltbon prd/cache/layersConfig.$(lang).json  s3://dummy-geoadmin/$(VERSION)/src/;)
+.PHONY: s3upload
+s3upload: boto
+	${PYTHON_CMD} ./scripts/s3manage.py upload .
+
+.PHONY: s3activate
+s3activate: boto
+	${PYTHON_CMD} ./scripts/s3manage.py activate $(VERSION)
+
+.PHONY: s3list
+s3list: boto
+	${PYTHON_CMD} ./scripts/s3manage.py list
+
+.PHONY: s3delete
+s3delete: boto
+	${PYTHON_CMD} ./scripts/s3manage.py delete $(VERSION)
 
 .PHONY: deploybranch
 deploybranch: deploy/deploy-branch.cfg $(DEPLOY_ROOT_DIR)/$(GIT_BRANCH)/.git/config
@@ -547,6 +557,10 @@ ${HTMLMIN_CMD}: ${PYTHON_VENV}
 ${GJSLINT_CMD}: ${PYTHON_VENV}
 	${PYTHON_CMD} ${PIP_CMD} install \
 	    "http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz"
+	touch $@
+
+boto: ${PYTHON_VENV}
+	${PYTHON_CMD} ${PIP_CMD} install "boto==2.34.0"
 	touch $@
 
 ${PYTHON_VENV}:
