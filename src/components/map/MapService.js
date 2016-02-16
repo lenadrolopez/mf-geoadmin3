@@ -1034,7 +1034,7 @@ goog.require('ga_urlutils_service');
           var provider, params, config = layers[bodId];
           bodId = config.config3d || bodId;
           var config3d = this.getConfig3d(config);
-          // Only native tiles have a 3d config
+          // Only native tiles have a 3d config for wmts layers
           var hasNativeTiles = !!config.config3d;
           var timestamp = this.getLayerTimestampFromYear(bodId, gaTime.get());
           var requestedLayer = config3d.wmsLayers || config3d.serverLayerName ||
@@ -1097,8 +1097,13 @@ goog.require('ga_urlutils_service');
             // Set maxLod as undefined deactivate client zoom.
             var maxLod = (maxRetLod) ? undefined : 17;
             if (maxLod && config3d.resolutions) {
-              maxLod = gaMapUtils.getLodFromRes(
-                  config3d.resolutions[config3d.resolutions.length - 1]);
+              if (hasNativeTiles) {
+                maxRetLod = config3d.resolutions.length - 1;
+                maxLod = maxRetLod;
+              } else {
+                maxLod = gaMapUtils.getLodFromRes(
+                    config3d.resolutions[config3d.resolutions.length - 1]);
+              }
             }
 
             var terrainTimestamp = this.getLayerTimestampFromYear(
@@ -1744,6 +1749,7 @@ goog.require('ga_urlutils_service');
         },
 
         getLodFromRes: function(res) {
+          // Get TMS Lod (or max zoom level) for a res in 21781
           if (!res) {
             return;
           }
