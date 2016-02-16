@@ -131,8 +131,14 @@ def usage():
     print "      upload content of /prd directory to bucket. You may specify a directory (default to current)."
     print "      Active project is NOT changed. Project has to be statified (post PR https://github.com/geoadmin/mf-geoadmin3/pull/3078)"
     print
-    print "  activate"
+    print "  activate <version>"
     print "      activate the given 'version' (copy from <version>/index.<version>.html to index.html"
+    print
+    print "  delete <version>"
+    print "      delete the given 'version' (both directory and indexes files"
+    print
+    print "  help"
+    print "      print this message"
 
 
 def upload(version, base_dir):
@@ -143,9 +149,10 @@ def upload(version, base_dir):
              'prd/img',
              'prd/style',
              'prd/lib',
-             'prd/locales'
+             'prd/locales',
+             'src'
              ]
-
+    EXCLUDES = ['.less', '.gitignore', 'services', 'checker']
     VERSION = str(version)
 
     for fname in FILES:
@@ -154,12 +161,15 @@ def upload(version, base_dir):
             dest = fname.replace('prd', VERSION)
             save_to_s3(fullpath, dest, cached=True)
         if os.path.isdir(fullpath):
-            print fullpath
             for (root, dirs, files) in os.walk(fullpath):
                 for fn in files:
                     path = os.path.join(root, fn)
+                    _, extension = os.path.splitext(fn)
+                    if extension in EXCLUDES or _ in EXCLUDES:
+                        continue
                     relpath = os.path.relpath(path, os.path.commonprefix([base_dir, path]))
                     dest = relpath.replace('prd', VERSION)
+                    dest = relpath.replace('src', VERSION +'/src' )
                     save_to_s3(path, dest, cached=True)
 
     for n in ('index', 'embed', 'mobile'):
@@ -174,8 +184,14 @@ def upload(version, base_dir):
     save_to_s3('prd/robots.txt', '{}/robots.txt'.format(VERSION), cached=False, mimetype='text/plain')
     save_to_s3('prd/checker', '{}/checker'.format(VERSION), cached=False, mimetype='text/plain')
 
+    save_to_s3('prd/cache/services', '{}/src/services'.format(VERSION), cached=True, mimetype='application/js')
+
+    for lang in ('de', 'fr', 'it', 'rm', 'en'):
+        save_to_s3('prd/cache/layersConfig.{}.json'.format(lang), '{}/src/layersConfig.{}.json'.format(VERSION, lang), cached=True, mimetype='application/js')
+
     print "Upload finished"
-    print("\n\nPlease check it on '{}'\n".format(get_url("index.{}.html".format(VERSION))))
+    print("\n\nPlease check it on {}\n".format(get_url("index.{}.html".format(VERSION))))
+    print("and {}\n".format(get_url("{}/src/index.html".format(VERSION))))
 
 
 def get_active_version():
@@ -244,15 +260,24 @@ def activate(version):
     for n in ('index', 'embed', 'mobile'):
         k = boto.s3.key.Key(bucket)
         src_key_name = '{}.{}.html'.format(n, version)
-        print src_key_name
+        print("{} --> {}.html".format( src_key_name, n))
         k.key = src_key_name
 
         bucket.copy_key(n + '.html', bucket.name, src_key_name, preserve_acl=True)
     for j in ('robots.txt', 'geoadmin.appcache', 'checker'):
         src_key_name = '{}/{}'.format(version, j)
         bucket.copy_key(os.path.basename(src_key_name), bucket.name, src_key_name, preserve_acl=True)
+    # src
+    result_set = bucket.list(prefix='{}/src'.format(version))
+    for k in result_set:
+         src_key_name = k.name
+         dst_key_name = src_key_name.replace('{}/'.format(version), '')
+         print("{} --> {}".format(src_key_name, dst_key_name))
+         bucket.copy_key(dst_key_name, bucket.name, src_key_name, preserve_acl=True)
 
-    print("Please check it on '{}'".format(get_url()))
+    print("\n\nPlease check it on {}".format(get_url()))
+    print("  and {}".format(get_url('src/index.html')))
+    print(" and https://dfa30utos8zzp.cloudfront.net/")
 
 
 def get_url(key_name='index.html'):
@@ -297,18 +322,20 @@ def main():
             sys.exit()
         upload(VERSION, base_dir)
 
-    if str(sys.argv[1]) == 'list':
+    elif str(sys.argv[1]) == 'list':
         list_version()
 
-    if str(sys.argv[1]) == 'activate' and len(sys.argv) == 3:
+    elif str(sys.argv[1]) == 'activate' and len(sys.argv) == 3:
         version = int(sys.argv[2])
         print("Trying to activate version '{}'".format(version))
         activate(version)
 
-    if str(sys.argv[1]) == 'delete' and len(sys.argv) == 3:
+    elif str(sys.argv[1]) == 'delete' and len(sys.argv) == 3:
         version = int(sys.argv[2])
         print("Trying to delete version '{}'".format(version))
         delete_version(version)
+    else:
+        usage()
 
 if __name__ == '__main__':
     main()
