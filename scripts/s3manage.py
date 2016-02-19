@@ -12,9 +12,10 @@ import gzip
 import mimetypes
 mimetypes.init()
 
-BUCKET_NAME = "dummy-geoadmin"
+BUCKET_NAME = "mf-geoadmin3"
 
-PROFILE_NAME = 'ltbon'
+user = os.environ.get('USER')
+PROFILE_NAME = '{}_aws_admin'.format(user)
 
 
 NO_COMPRESS = ['image/png', 'image/jpeg', 'image/ico', 'application/x-font-ttf', 'application/x-font-opentype', 'application/vnd.ms-fontobject', 'application/vnd.ms-fontobject']
@@ -169,7 +170,8 @@ def upload(version, base_dir):
                         continue
                     relpath = os.path.relpath(path, os.path.commonprefix([base_dir, path]))
                     dest = relpath.replace('prd', VERSION)
-                    dest = relpath.replace('src', VERSION +'/src' )
+                    if dest == relpath:
+                        dest = relpath.replace('src', VERSION +'/src' )
                     save_to_s3(path, dest, cached=True)
 
     for n in ('index', 'embed', 'mobile'):
@@ -180,7 +182,7 @@ def upload(version, base_dir):
     for lang in ('de', 'fr', 'it', 'rm', 'en'):
         save_to_s3('prd/cache/layersConfig.{}.json'.format(lang), '{}/layersConfig.{}.json'.format(VERSION, lang), cached=True, mimetype='application/js')
 
-    save_to_s3('prd/geoadmin.appcache', '{}/geoadmin.appcache'.format(VERSION), cached=False, mimetype='text/cache-manifest')
+    save_to_s3('prd/geoadmin.{}.appcache'.format(VERSION), '{}/geoadmin.appcache'.format(VERSION), cached=False, mimetype='text/cache-manifest')
     save_to_s3('prd/robots.txt', '{}/robots.txt'.format(VERSION), cached=False, mimetype='text/plain')
     save_to_s3('prd/checker', '{}/checker'.format(VERSION), cached=False, mimetype='text/plain')
 
@@ -201,6 +203,8 @@ def get_active_version():
         c = k.get_contents_as_string()
         d = _unzip_data(c)
     except boto.exception.S3ResponseError:
+        return 0
+    except IOError:
         return 0
 
     return int(get_index_version(d))
@@ -277,7 +281,6 @@ def activate(version):
 
     print("\n\nPlease check it on {}".format(get_url()))
     print("  and {}".format(get_url('src/index.html')))
-    print(" and https://dfa30utos8zzp.cloudfront.net/")
 
 
 def get_url(key_name='index.html'):
