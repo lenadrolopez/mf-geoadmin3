@@ -8,6 +8,7 @@ APACHE_BASE_PATH ?= /$(shell id -un)
 LAST_APACHE_BASE_PATH := $(shell if [ -f .build-artefacts/last-apache-base-path ]; then cat .build-artefacts/last-apache-base-path 2> /dev/null; else echo '-none-'; fi)
 API_URL ?= //mf-chsdi3.dev.bgdi.ch
 LAST_API_URL := $(shell if [ -f .build-artefacts/last-api-url ]; then cat .build-artefacts/last-api-url 2> /dev/null; else echo '-none-'; fi)
+PRINT_URL ?= //service-print.dev.bgdi.ch
 PUBLIC_URL ?= //public.dev.bgdi.ch
 PUBLIC_URL_REGEXP ?= ^https?:\/\/public\..*\.(bgdi|admin)\.ch\/.*
 ADMIN_URL_REGEXP ?= ^(ftp|http|https):\/\/(.*(\.bgdi|\.geo\.admin)\.ch)
@@ -314,6 +315,7 @@ prd/geoadmin.appcache: src/geoadmin.mako.appcache \
 	    --var "apache_base_path=$(APACHE_BASE_PATH)" \
 	    --var "languages=$(LANGUAGES)" \
 	    --var "api_url=$(API_URL)" \
+	    --var "print_url=$(PRINT_URL)" \
 	    --var "public_url=$(PUBLIC_URL)" $< > $@
 	mv $@ prd/geoadmin.$(VERSION).appcache
 
@@ -332,6 +334,7 @@ define buildpage
 		--var "apache_base_path=$(APACHE_BASE_PATH)" \
 		--var "api_url=$(API_URL)" \
 		--var "mapproxy_url=$(MAPPROXY_URL)" \
+	    --var "print_url=$(PRINT_URL)" \
 		--var "default_topic_id=$(DEFAULT_TOPIC_ID)" \
 		--var "translation_fallback_code=$(TRANSLATION_FALLBACK_CODE)" \
 		--var "languages=$(LANGUAGES)" \
@@ -445,6 +448,7 @@ apache/app.conf: apache/app.mako-dot-conf \
 	${PYTHON_CMD} ${MAKO_CMD} \
 	    --var "apache_base_path=$(APACHE_BASE_PATH)" \
 	    --var "api_url=$(API_URL)" \
+	    --var "print_url=$(PRINT_URL)" \
 	    --var "public_url=$(PUBLIC_URL)" \
 	    --var "apache_base_directory=$(APACHE_BASE_DIRECTORY)" \
 	    --var "version=$(VERSION)" $< > $@
