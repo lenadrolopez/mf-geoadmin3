@@ -1001,6 +1001,25 @@ goog.require('ga_urlutils_service');
                 attributionUrl: 'http://www.swisstopo.admin.ch/internet/' +
                     'swisstopo/' + lang + '/home.html'
               };
+              response.data['ch.swissmetnet.temperature'] = {
+                type: 'geojson',
+                attribution: 'Meteo Suisse',
+                brackground: false,
+                searchable: false,
+                highlightable: true,
+                selectbyrectangle: false,
+                attributionUrl: 'http://www.meteosuisse.admin.ch/home.html',
+                geojsonUrl: gaGlobalOptions.apiUrl +
+                    '/static/vectorStyles/ch.swissmetnet.temperature.geojson',
+                styleUrl: gaGlobalOptions.apiUrl.split('https:')[1] +
+                    '/static/vectorStyles/ch.swissmetnet.temperature.json',
+                topics: 'api,bafu,ech,inspire',
+                hasLegend: false,
+                updateDelay: 300000,
+                timeEnabled: false,
+                label: 'Test meteo temp.',
+                queryable: false
+              };
             }
             if (!layers) { // First load
               layers = response.data;
