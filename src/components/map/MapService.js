@@ -1315,8 +1315,12 @@ goog.require('ga_urlutils_service');
                 cache: true
               }).success(function(data) {
                 var olStyleForVector = gaStylesFromLiterals(data);
-                olLayer.setStyle(function(feature) {
-                  return [olStyleForVector.getFeatureStyle(feature)];
+                olLayer.setStyle(function(feature, resolution) {
+                  var s = olStyleForVector.getFeatureStyle(feature, resolution);
+                  if (typeof s == 'function') {
+                    return [s(feature, resolution)];
+                  }
+                  return [s];
                 });
               });
               // Handle error

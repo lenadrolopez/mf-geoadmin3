@@ -7,7 +7,7 @@ goog.provide('ga_styles_from_literals_service');
 
     this.$get = function() {
 
-      function getOlStyleForPoint(options, shape) {
+      function getOlStyleForImage(options, shape) {
         if (shape === 'circle') {
           return new ol.style.Circle(options);
         } else if (shape === 'icon') {
@@ -42,13 +42,11 @@ goog.provide('ga_styles_from_literals_service');
         var olStyles = {};
         angular.forEach(options, function(value, key) {
           var type = key;
-          var style = value;
+          var styleSpec = value;
           if (type === 'stroke') {
-            olStyles[type] = new ol.style.Stroke(style);
+            olStyles[type] = new ol.style.Stroke(styleSpec);
           } else if (type === 'fill') {
-            olStyles[type] = new ol.style.Fill(style);
-          } else if (type === 'text') {
-            olStyles[type] = new ol.style.Text(style);
+            olStyles[type] = new ol.style.Fill(styleSpec);
           }
         });
         return olStyles;
@@ -58,19 +56,35 @@ goog.provide('ga_styles_from_literals_service');
         var olStyles = {};
         var style = value.vectorOptions;
         var geomType = value.geomType;
-        if (geomType === 'point') {
+        // Text only on points for now
+        if (style.type === 'text') {
+          // Always use style function for text
+          return function(feature, resolution) {
+            var styleSpec =
+                angular.extend({}, style, getOlBasicStyles(style));
+            var property = styleSpec.property;
+            styleSpec.text = feature.get(property);
+            if (resolution >= 250) {
+              styleSpec.scale = styleSpec.scale * 0.5;
+            }
+            return new ol.style.Style({
+              text: new ol.style.Text(styleSpec)
+            });
+          };
+        } else if (geomType == 'point') {
           style = {
             image: style
           };
         }
+
         angular.forEach(style, function(value, key) {
           var olStyle = {};
           if (key === 'image') {
-            var styleP = style[key];
-            var options = getOlBasicStyles(styleP);
+            var styleSpec = style[key];
+            var options = getOlBasicStyles(styleSpec);
             // {} to preserve the original object
-            options = angular.extend({}, styleP, options);
-            olStyle = getOlStyleForPoint(options, value.type);
+            options = angular.extend({}, styleSpec, options);
+            olStyle = getOlStyleForImage(options, value.type);
             olStyles[key] = olStyle;
           } else {
             olStyles = angular.extend({}, olStyle, getOlBasicStyles(style));
@@ -130,7 +144,7 @@ goog.provide('ga_styles_from_literals_service');
           return olStyle;
         };
 
-        this.getFeatureStyle = function(feature) {
+        this.getFeatureStyle = function(feature, resolution) {
           var getGeomTypeFromGeometry = function(olGeometry) {
             if (olGeometry instanceof ol.geom.Point ||
                 olGeometry instanceof ol.geom.MultiPoint) {
@@ -145,6 +159,9 @@ goog.provide('ga_styles_from_literals_service');
           };
 
           if (this.type === 'single') {
+            if (typeof this.singleStyl == 'function') {
+              return this.singleStyle(feature, resolution);
+            }
             return this.singleStyle;
           } else if (this.type === 'unique') {
             var properties = feature.getProperties();
