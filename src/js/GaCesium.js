@@ -138,7 +138,7 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
     }
     // Set the minimumZoomDistance according to the camera height
     var minimumZoomDistance = pos.height > 1800 ? 400 : 200;
-    this.screenSpaceCameraController.minimumZoomDistance = 0;
+    this.screenSpaceCameraController.minimumZoomDistance = 5;
     //minimumZoomDistance;
   };
 
