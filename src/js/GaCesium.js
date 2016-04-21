@@ -99,11 +99,24 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
       window.console.error(e.stack);
       return;
     }
+    var getStarUrl = function(suff) {
+      return 'lib/Cesium/Assets/Textures/SkyBox/tycho2t3_80_' + suff + '.jpg';
+    };
     var globe = cesiumViewer.getCesiumScene().globe;
     globe.baseColor = Cesium.Color.WHITE;
     globe.tileCacheSize = tileCacheSize;
     globe.maximumScreenSpaceError = maximumScreenSpaceError;
     var scene = cesiumViewer.getCesiumScene();
+    /*scene.skyBox = new Cesium.SkyBox({
+      sources : {
+        positiveX : getStarUrl('px'),
+        negativeX : getStarUrl('mx'),
+        positiveY : getStarUrl('py'),
+        negativeY : getStarUrl('my'),
+        positiveZ : getStarUrl('pz'),
+        negativeZ : getStarUrl('mz')
+      }
+    });*/
     scene.backgroundColor = Cesium.Color.WHITE;
     scene.globe.depthTestAgainstTerrain = true;
     //scene.screenSpaceCameraController.maximumZoomDistance = 500000;
