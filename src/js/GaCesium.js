@@ -71,7 +71,7 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
     var fogEnabled = boolParam('fogEnabled', true);
     var fogDensity = floatParam('fogDensity', '0.0001');
     var fogSseFactor = floatParam('fogSseFactor', '25');
-    var terrainLevels = [8, 11, 14, 16, 17];
+    var terrainLevels = [8, 11, 14, 16, 17, 18];
     window.minimumRetrievingLevel = intParam('minimumRetrievingLevel', '8');
     window.terrainAvailableLevels = arrayParam('terrainLevels', terrainLevels);
     window.imageryAvailableLevels = arrayParam('imageryLevels', undefined);
@@ -80,10 +80,11 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
     try {
       cesiumViewer = new olcs.OLCesium({
         map: map,
-        createSynchronizers: function(map, scene) {
+        createSynchronizers: function(map, scene, dataSources) {
            return [
              new olcs.GaRasterSynchronizer(map, scene),
-             new olcs.VectorSynchronizer(map, scene)
+             new olcs.GaVectorSynchronizer(map, scene),
+             new olcs.GaKmlSynchronizer(map, scene, dataSources)
            ];
         }
       });
@@ -105,7 +106,7 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
     var scene = cesiumViewer.getCesiumScene();
     scene.backgroundColor = Cesium.Color.WHITE;
     scene.globe.depthTestAgainstTerrain = true;
-    scene.screenSpaceCameraController.maximumZoomDistance = 500000;
+    //scene.screenSpaceCameraController.maximumZoomDistance = 500000;
     scene.terrainProvider =
         gaLayers.getCesiumTerrainProviderById(gaGlobalOptions.defaultTerrain);
     scene.postRender.addEventListener(limitCamera, scene);
@@ -137,7 +138,8 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
     }
     // Set the minimumZoomDistance according to the camera height
     var minimumZoomDistance = pos.height > 1800 ? 400 : 200;
-    this.screenSpaceCameraController.minimumZoomDistance = minimumZoomDistance;
+    this.screenSpaceCameraController.minimumZoomDistance = 0;
+    //minimumZoomDistance;
   };
 
   var enableOl3d = function(ol3d, enable) {

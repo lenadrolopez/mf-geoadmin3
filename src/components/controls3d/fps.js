@@ -70,14 +70,14 @@ function FPS(scene, scope) {
    * @const {number}
    * @private
    */
-  this.walkSpeed_ = 6000 / 3600;
+  this.walkSpeed_ = 7 * 6000 / 3600;
 
   /**
    * In meters/second.
    * @const {number}
    * @private
    */
-  this.runSpeed_ = 7 * this.walkSpeed_;
+  this.runSpeed_ = 2 * this.walkSpeed_;
 
   /**
    * In meters/second. ~ Pilatus PC-6 cruise speed

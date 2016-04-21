@@ -45298,7 +45298,7 @@ olcs.OLCesium = function(options) {
   });
 
   var synchronizers = goog.isDef(options.createSynchronizers) ?
-      options.createSynchronizers(this.map_, this.scene_) :
+      options.createSynchronizers(this.map_, this.scene_, this.dataSourceCollection_) :
       [
         new olcs.RasterSynchronizer(this.map_, this.scene_),
         new olcs.VectorSynchronizer(this.map_, this.scene_)
@@ -45558,6 +45558,85 @@ olcs.OLCesium.prototype.setResolutionScale = function(value) {
   }
 };
 
+goog.provide('olcs.GaKmlSynchronizer');
+goog.require('olcs.AbstractSynchronizer');
+
+
+/**
+ * Unidirectionally synchronize geoadmin kml layers to Cesium.
+ * @param {!ol.Map} map
+ * @param {!Cesium.Scene} scene
+ * @param {!Cesium.DataSourceCollection} dataSources
+ * @constructor
+ * @extends {olcs.AbstractSynchronizer}
+ * @api
+ * @struct
+ */
+olcs.GaKmlSynchronizer = function(map, scene, dataSources) {
+
+  /**
+   * @protected
+   */
+  this.dataSources_ = dataSources;
+
+  goog.base(this, map, scene);
+};
+goog.inherits(olcs.GaKmlSynchronizer, olcs.AbstractSynchronizer);
+
+
+/**
+ * @inheritDoc
+ */
+olcs.GaKmlSynchronizer.prototype.createSingleLayerCounterparts =
+    function(olLayer) {
+  if (olLayer.get('type') === 'KML' && olLayer.get('url') &&
+      !/:\/\/public\./.test(olLayer.get('url'))) {
+    var options = {
+      camera: this.scene.camera,
+      canvas: this.scene.canvas,
+      proxy: new Cesium.DefaultProxy('https://api3.geo.admin.ch/ogcproxy?url=')
+    };
+    var url = '' + olLayer.get('url');
+    this.dataSources_.add(Cesium.KmlDataSource.load(url, options));
+  }
+  return null;
+};
+
+/**
+ * @inheritDoc
+ */
+olcs.GaKmlSynchronizer.prototype.destroyCesiumObject = function(object) {
+  //this.dataSourcesobject.getRootPrimitive().destroy();
+};
+
+
+/**
+ * @inheritDoc
+ */
+olcs.GaKmlSynchronizer.prototype.removeSingleCesiumObject =
+    function(object, destroy) {
+  //object.destroy();
+  //this.csAllPrimitives_.destroyPrimitives = destroy;
+  //this.csAllPrimitives_.remove(object.getRootPrimitive());
+  //this.csAllPrimitives_.destroyPrimitives = false;
+};
+
+
+/**
+ * @inheritDoc
+ */
+olcs.GaKmlSynchronizer.prototype.removeAllCesiumObjects = function(destroy) {
+  //this.csAllPrimitives_.destroyPrimitives = destroy;
+  //if (destroy) {
+  //  for (var i = 0; i < this.csAllPrimitives_.length; ++i) {
+  //    this.csAllPrimitives_.get(i)['counterpart'].destroy();
+  //  }
+  //}
+  //this.csAllPrimitives_.removeAll();
+  //this.csAllPrimitives_.destroyPrimitives = false;
+};
+
+
 goog.provide('olcs.GaRasterSynchronizer');
 goog.require('olcs.RasterSynchronizer');
 
@@ -45613,6 +45692,39 @@ olcs.GaRasterSynchronizer.prototype.convertLayerToCesiumImageries =
   return providers.map(function(p) {
     return new Cesium.ImageryLayer(p);
   });
+};
+
+goog.provide('olcs.GaVectorSynchronizer');
+goog.require('olcs.VectorSynchronizer');
+
+
+/**
+ * Unidirectionally synchronize OpenLayers vector layers to Cesium.
+ * @param {!ol.Map} map
+ * @param {!Cesium.Scene} scene
+ * @param {olcs.FeatureConverter=} opt_converter
+ * @constructor
+ * @extends {olcs.VectorSynchronizer}
+ * @api
+ * @struct
+ */
+olcs.GaVectorSynchronizer = function(map, scene, opt_converter) {
+  goog.base(this, map, scene, opt_converter);
+};
+goog.inherits(olcs.GaVectorSynchronizer, olcs.VectorSynchronizer);
+
+
+/**
+ * @inheritDoc
+ */
+olcs.GaVectorSynchronizer.prototype.createSingleLayerCounterparts =
+    function(olLayer) {
+  if (olLayer.get('type') === 'KML' && !/:\/\/public\./.test(olLayer.get('url'))) {
+    window.console.log('KML');
+    window.console.log(olLayer.get('url'));
+    return null;
+  }
+  return goog.base(this, 'createSingleLayerCounterparts', olLayer);
 };
 
 // FIXME factor out common code between usedTiles and wantedTiles
@@ -117638,7 +117750,9 @@ goog.require('olcs.AbstractSynchronizer');
 goog.require('olcs.AutoRenderLoop');
 goog.require('olcs.Camera');
 goog.require('olcs.FeatureConverter');
+goog.require('olcs.GaKmlSynchronizer');
 goog.require('olcs.GaRasterSynchronizer');
+goog.require('olcs.GaVectorSynchronizer');
 goog.require('olcs.OLCesium');
 goog.require('olcs.RasterSynchronizer');
 goog.require('olcs.VectorSynchronizer');
@@ -121710,8 +121824,16 @@ goog.exportSymbol(
     olcs.VectorSynchronizer);
 
 goog.exportSymbol(
+    'olcs.GaKmlSynchronizer',
+    olcs.GaKmlSynchronizer);
+
+goog.exportSymbol(
     'olcs.GaRasterSynchronizer',
     olcs.GaRasterSynchronizer);
+
+goog.exportSymbol(
+    'olcs.GaVectorSynchronizer',
+    olcs.GaVectorSynchronizer);
 
 goog.exportProperty(
     ol.Object.prototype,
@@ -130392,3 +130514,8 @@ goog.exportProperty(
     ol.control.ZoomToExtent.prototype,
     'unByKey',
     ol.control.ZoomToExtent.prototype.unByKey);
+
+goog.exportProperty(
+    olcs.GaKmlSynchronizer.prototype,
+    'synchronize',
+    olcs.GaKmlSynchronizer.prototype.synchronize);

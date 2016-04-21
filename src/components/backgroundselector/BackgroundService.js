@@ -25,8 +25,7 @@ goog.require('ga_permalink');
         'voidLayer': voidLayer,
         'ch.swisstopo.swissimage': {
           id: 'ch.swisstopo.swissimage',
-          label: 'bg_luftbild',
-          disable3d: true
+          label: 'bg_luftbild'
         },
         'ch.swisstopo.pixelkarte-farbe': {
           id: 'ch.swisstopo.pixelkarte-farbe',

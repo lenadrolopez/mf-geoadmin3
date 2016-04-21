@@ -50,6 +50,7 @@ goog.require('ga_map_service');
         });
 
         scope.onkey = function(event) {
+
           if (isElementEditable(event.target)) {
             return;
           }
@@ -64,7 +65,9 @@ goog.require('ga_map_service');
             // - key
             camera.moveBackward(zoomAmount);
           }
-
+          if (scope.fps.active) {
+            return;
+          }
           if (event.keyCode == 37) {
             // left key
             if (lowPitch) {
