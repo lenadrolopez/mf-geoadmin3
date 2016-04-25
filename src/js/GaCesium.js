@@ -141,13 +141,13 @@ var GaCesium = function(map, gaPermalink, gaLayers, gaGlobalOptions,
       pos.latitude = Math.max(extent4326[1] - padding, pos.latitude);
       pos.longitude = Math.min(extent4326[2] + padding, pos.longitude);
       pos.latitude = Math.min(extent4326[3] + padding, pos.latitude);
-      this.camera.setView({
+      /*this.camera.setView({
         destination: Cesium.Ellipsoid.WGS84.cartographicToCartesian(pos),
         orientation: {
           heading: this.camera.heading,
           pitch: this.camera.pitch
         }
-      });
+      });*/
     }
     // Set the minimumZoomDistance according to the camera height
     var minimumZoomDistance = pos.height > 1800 ? 400 : 200;
