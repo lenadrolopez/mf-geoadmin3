@@ -312,12 +312,12 @@ goog.require('ga_urlutils_service');
                 gaMeasure.registerOverlaysEvents(olMap, olLayer);
               }
 
-              if (options.zoomToExtent) {
+              /*if (options.zoomToExtent) {
                 var extent = olLayer.getExtent();
                 if (extent) {
                   olMap.getView().fit(extent, olMap.getSize());
                 }
-              }
+              }*/
             }
             return olLayer;
           });

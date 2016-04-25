@@ -147,7 +147,7 @@ goog.require('ga_urlutils_service');
                 url: ($scope.currentTab === 2) ? $scope.fileUrl :
                     $scope.file.name,
                 useImageVector: gaKml.useImageVector($scope.fileSize),
-                zoomToExtent: true
+                zoomToExtent: false
               });
 
               $scope.userMessage = $translate.instant('parse_succeeded');
