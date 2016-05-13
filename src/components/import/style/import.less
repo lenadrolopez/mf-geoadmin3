@@ -1,9 +1,49 @@
-[ga-import-wms] {
+[ga-import] {
   position: relative;
   background-color: white;
   padding: 10px;
   width: 740px;
-  height: 378px;
+  /*height: 390px;*/
+
+  /*for the kml*/
+  input[type=file] {
+    display: none;
+  }
+
+  input[type=text][readonly] {
+    cursor: pointer;
+  }
+  .upload-result, .tabbable-footer, .progress {
+    margin: 5px 0px 0px 0px;
+  }
+
+  .nav-tabs {
+
+    .active {
+      cursor: default;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .progress {
+    height: 10px;
+  }
+
+  /*big load kml button*/
+  .ga-import-kml-load {
+    height: 30px;
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .ga-import-kml-abort {
+    cursor:pointer;
+    margin-right: 5px;
+  }
+
 
   form {
     z-index: 100;
@@ -68,7 +108,7 @@
     }
   }
 
-  .ga-import-wms-container {
+  .ga-import-container {
     width: 330px;
     border: 1px solid #dddddd;
     border-collapse: separate;
@@ -89,7 +129,7 @@
     }
   }
 
-  .ga-import-wms-header {
+  .ga-import-header {
     width: 100%;
     height: 30px;
     text-align: center;
@@ -101,7 +141,7 @@
       height: 100%;
     }
   }
-  .ga-import-wms-content {
+  .ga-import-content {
     width: 100%;
     height: 240px;
     position: relative;
@@ -153,33 +193,32 @@
     }
   }
 
-  .ga-import-wms-container, .ga-import-wms-descr {
+  .ga-import-container, .ga-import-descr {
     display: inline-block;
     position: relative;
     margin: 10px 0px 0px 0px;
   }
 
-  .ga-import-wms-connect {
+  .ga-import-connect {
     position: absolute;
     left: 596px;
-    top: 0px;
     width: 120px;
   }
 
-  .ga-import-wms-open {
+  .ga-import-open {
     cursor: pointer;
     position: absolute;
     left: 566px;
-    top: .7em;
+    top: 2.35em;
     font-size: 14px;
   }
 
-  .ga-import-wms-descr {
+  .ga-import-descr {
     vertical-align: top;
     margin-left: 20px;
   }
  
-  .ga-import-wms-add {
+  .ga-import-add {
     width: 100%;
     margin-top: 10px;
   }
@@ -205,4 +244,27 @@
       color: red; 
     }
   }
+}
+
+/* Drop zone */
+.ga-import-kml-drop-zone {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: black;
+    opacity: 0.7;
+    border: 5px dashed #ccc;
+    z-index: 99999;
+
+    div {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      font-weight: bold;
+      font-size: 32px;
+      color: white;
+    }
 }

@@ -183,8 +183,7 @@
 "homescreen_content": "Nus cussegliain Vus da utilisar questa funcziun per plazzar questa applicaziun directamain sin Vossa pagina iniziala",
 "homescreen_title": "Pagina iniziala",
 "import": "Importar",
-"import_kml": "Importar KML",
-"import_wms": "Importar WMS",
+"import_tooltip": "Agiuntar in unitad da datas",
 "inform_draw_rectangl_ctrl": "Per selecziunar plirs objects en ina: smatgai CTRL e faschai in rectangul sin la charta.",
 "inspire": "INSPIRE",
 "inspire_service_link_href": "http://www.geo.admin.ch/internet/geoportal/rm/home.html",
@@ -197,7 +196,6 @@
 "kgs_service_link_href": "http://www.bevoelkerungsschutz.admin.ch/internet/bs/de/home/themen/kgs.html",
 "kgs_service_link_label": "Protecziun dals bains culturals",
 "kml": "KML",
-"kmlimport_tooltip": "Agiuntar in unitad da datas externa KML",
 "lang_chooser_label": "Lingua",
 "last_available_year": "Last year",
 "layer_invalid_no_crs": "WMS na sustegna betg la projecziun cartografica",
@@ -388,6 +386,5 @@
 "wildruhezonen_service_link_label": "wildruhezonen.ch",
 "wms": "WMS",
 "wms_max_size_allowed": "Capacitad da WMS maximala ",
-"wmsimport_tooltip": "Agiuntar in server externa WMS",
 "yellow": "mellen"
 }

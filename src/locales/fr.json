@@ -183,8 +183,7 @@
 "homescreen_content": "Nous vous recommandons d'utiliser cette fonction pour placer cette application directement sur l'écran d'accueil.",
 "homescreen_title": "Ecran d'accueil",
 "import": "Importer",
-"import_kml": "KML import",
-"import_wms": "WMS import",
+"import_tooltip": "Importer des données",
 "inform_draw_rectangl_ctrl": "Dessiner un rectangle sur la carte avec la touche CTRL (cmd on Mac) enfoncée pour choisir la zone de sélection.",
 "inspire": "INSPIRE",
 "inspire_service_link_href": "http://www.geo.admin.ch/internet/geoportal/fr/home.html",
@@ -197,7 +196,6 @@
 "kgs_service_link_href": "http://www.bevoelkerungsschutz.admin.ch/internet/bs/fr/home/themen/kgs.html",
 "kgs_service_link_label": "Protection des biens culturels",
 "kml": "KML",
-"kmlimport_tooltip": "Importer des données KML externes",
 "lang_chooser_label": "Langue",
 "last_available_year": "Last year",
 "layer_invalid_no_crs": "WMS  ne supporte pas la projection de la carte",
@@ -388,6 +386,5 @@
 "wildruhezonen_service_link_label": "zones-de-tranquillite.ch",
 "wms": "WMS",
 "wms_max_size_allowed": "Taille maximum WMS autorisée",
-"wmsimport_tooltip": "Importer des données WMS externes",
 "yellow": "jaune"
 }

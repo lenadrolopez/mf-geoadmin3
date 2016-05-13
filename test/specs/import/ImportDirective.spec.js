@@ -1,4 +1,4 @@
-describe('ga_importwms_directive', function() {
+describe('ga_import_directive', function() {
   var element, scope, map;
    
   beforeEach(function() {
@@ -19,8 +19,8 @@ describe('ga_importwms_directive', function() {
       map.getView().fit([-20000000, -20000000, 20000000, 20000000], map.getSize());
 
       element = angular.element(
-          '<div ga-import-wms ga-import-wms-map="map" ' +
-               'ga-import-wms-options="options">' +
+          '<div ga-import ga-import-map="map" ' +
+               'ga-import-options="options">' +
           '</div>');
       scope = $rootScope.$new();
       scope.map = map;
@@ -35,8 +35,8 @@ describe('ga_importwms_directive', function() {
            'http://mapserver1.gr.ch/wms/admineinteilung?'
         ]
       };
-      $injector.get('$controller')('GaImportWmsDirectiveController', {'$scope': scope});
-      $injector.get('$controller')('GaImportWmsItemDirectiveController', {'$scope': scope});
+      $injector.get('$controller')('GaImportDirectiveController', {'$scope': scope});
+      $injector.get('$controller')('GaImportItemDirectiveController', {'$scope': scope});
       $compile(element)(scope);
       $rootScope.$digest();
       $translate.use('fr');
@@ -47,13 +47,13 @@ describe('ga_importwms_directive', function() {
     var form = element.find('form');
     expect(form.find('input[type=url][ng-model=fileUrl]').length).to.be(1);
     expect(form.find('.twitter-typeahead').length).to.be(1);
-    expect(form.find('.ga-import-wms-open').length).to.be(1);    
-    expect(form.find('.ga-import-wms-connect').length).to.be(1); 
-    expect(element.find('.ga-import-wms-container').length).to.be(1); 
-    expect(element.find('.ga-import-wms-content').length).to.be(1);  
+    expect(form.find('.ga-import-open').length).to.be(1);    
+    expect(form.find('.ga-import-connect').length).to.be(1); 
+    expect(element.find('.ga-import-container').length).to.be(1); 
+    expect(element.find('.ga-import-content').length).to.be(1);  
     expect(element.find('textarea').length).to.be(1); 
-    expect(element.find('.ga-import-wms-add').length).to.be(1); 
-    form.find('.ga-import-wms-open').click();
+    expect(element.find('.ga-import-add').length).to.be(1); 
+    form.find('.ga-import-open').click();
     expect(element.find('.tt-dropdown-menu').css('display')).not.to.be('none');
     expect(element.find('.tt-suggestion').length).to.be(5);
   }));
@@ -155,7 +155,7 @@ describe('ga_importwms_directive', function() {
       expect(scope.layers[1].Layer.length).to.be(1);
     }));
     
-    describe('ga_importwms_item_directive', function() {
+    describe('ga_import_item_directive', function() {
       var evt = {
         stopPropagation: function(){}
       };
@@ -185,7 +185,7 @@ describe('ga_importwms_directive', function() {
     });
   });
 
-  describe('a good WMS GetCapabilities but without the map projection iss received', function() {
+  describe('a good WMS GetCapabilities but without the map projection is received', function() {
     var $httpBackend;
     var expectedWmsGetCapAdminUrl = "http://admin.ch/ogcproxy?url=http%3A%2F%2Fwms.geo.admin.ch%2F%3FSERVICE%3DWMS%26REQUEST%3DGetCapabilities%26VERSION%3D1.3.0%26lang%3Dfr";
 
