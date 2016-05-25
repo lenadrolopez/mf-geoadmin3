@@ -47,6 +47,17 @@ goog.require('ga_permalink');
         }
         // Use clipboard API to copy URL in OS clipboard
         element.on('click', function() {
+
+            // the copy link for the iframe-preview is refreshed
+            // according to the preview changes
+            var previewFrame = document.getElementById('previewFrame');
+            if (previewFrame) {
+              var url = previewFrame.contentWindow.location.href;
+              var myframe = $($('.ga-embed-input')[1].value)[0];
+              myframe.src = url;
+              $('.ga-embed-input')[1].value = myframe.outerHTML;
+            }
+
             var inputToCopy = $(attrs.gaShareCopyBt);
             inputToCopy[0].setSelectionRange(0, 9999);
 

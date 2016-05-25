@@ -91,8 +91,9 @@
             </span>
           </div>
         </div>
-        <iframe ng-if="loadIframe"
-                ng-src="{{embedValue}}" 
+        <iframe id="previewFrame"
+                ng-if="loadIframe"
+                ng-src="{{embedValue}}"
                 width="{{iframeWidth}}"
                 height="{{iframeHeight}}"
                 frameborder="0">
