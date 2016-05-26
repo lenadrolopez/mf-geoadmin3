@@ -758,6 +758,24 @@ itemscope itemtype="http://schema.org/WebApplication"
           api_url = my_host;
         }
 
+        var my_shop_url = getParam('shop_url');
+        var shop_url_base = '${shop_url}';
+        console.log('shop_base', shop_url_base);
+
+        if (my_shop_url){
+          shop_url = my_shop_url;
+          if (my_shop_url == 'dev' || my_shop_url == 'int'){
+            shop_url = '//shop-bgdi.'+ my_shop_url + '.bgdi.ch';
+          } else if (my_shop_url == 'prod'){
+              shop_url = '//beta.shop.swisstopo.ch';
+          } else if (my_shop_url == 'puzzle'){
+              shop_url = '//shop-shopbgdi.openshift.puzzle.ch';
+          }
+        } else {
+          shop_url = shop_url_base;
+        }
+        console.log('shop_url', shop_url);
+
         module.constant('gaGlobalOptions', {
           //dev3d to be removed once 3d goes live
           dev3d: true,
@@ -767,7 +785,7 @@ itemscope itemtype="http://schema.org/WebApplication"
           mapUrl : location.origin + '${apache_base_path}',
           apiUrl : location.protocol + api_url,
           mapproxyUrl : location.protocol + '${mapproxy_url}',
-          shopUrl : location.protocol + '${shop_url}',
+          shopUrl : location.protocol + shop_url,
           publicUrl : location.protocol + '${public_url}',
           publicUrlRegexp: new RegExp('${public_url_regexp}'),
           adminUrlRegexp: new RegExp('${admin_url_regexp}'),
