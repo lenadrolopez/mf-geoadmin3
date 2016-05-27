@@ -702,10 +702,10 @@ goog.require('ga_urlutils_service');
           if (layer.type == 'wmts') {
             if (!olSource) {
               var wmtsTplUrl = getWmtsGetTileTpl(layer.serverLayerName, null,
-                  '21781', layer.format, true)
+                  '2056', layer.format, true)
                   .replace('{z}', '{TileMatrix}')
-                  .replace('{x}', '{TileCol}')
-                  .replace('{y}', '{TileRow}');
+                  .replace('{x}', '{TileRow}')
+                  .replace('{y}', '{TileCol}');
               var subdomains = dfltWmtsNativeSubdomains;
               olSource = layer.olSource = new ol.source.WMTS({
                 dimensions: {
