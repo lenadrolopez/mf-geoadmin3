@@ -371,11 +371,50 @@ goog.require('ga_urlutils_service');
    */
   module.provider('gaLayers', function() {
 
-    this.$get = function($http, $q, $rootScope, $translate, $window,
+    this.$get = function($http, $q, $rootScope, $translate, $window, $timeout,
         gaBrowserSniffer, gaDefinePropertiesForLayer, gaMapUtils,
         gaNetworkStatus, gaStorage, gaTileGrid, gaUrlUtils,
         gaStylesFromLiterals, gaGlobalOptions, gaPermalink, 
         gaLang, gaTime) {
+
+      var MAX_RETRIES = 100;
+      var RETRIES_INTERVAL = 5000;
+
+      var retryOnError = function(msg, el, olsource) {
+        if (angular.isDefined(msg) &&
+            angular.isDefined(olsource)) {
+          olsource.on(msg, function(event) {
+            if (event[el]._retries == undefined) {
+              event[el]._retries = 0;
+            }
+            event[el]._retries++;
+            if (event[el]._retries <= MAX_RETRIES) {
+              $timeout(function() {
+                event[el].state = 0;
+                event[el].load();
+              }, RETRIES_INTERVAL);
+            }
+          });
+        }
+      };
+
+      var refreshAfterRetry = function(msg, el, olsource, ollayer) {
+        /*
+         * Because the retry above is using setTimeout functionality
+         * we need an active refreshing of the drawing when the retried
+         * tile is successfully loaded. Otherwise, it's drawn only
+         * when the map is refreshed in other ways
+         */
+        if (angular.isDefined(msg) &&
+            angular.isDefined(olsource) &&
+            angular.isDefined(ollayer)) {
+          olsource.on(msg, function(event) {
+            if (event[el]._retries) {
+              ollayer.changed();
+            }
+          });
+        }
+      };
 
       var Layers = function(dfltWmsSubdomains,
           dfltWmtsNativeSubdomains, dfltWmtsMapProxySubdomains,
@@ -687,6 +726,7 @@ goog.require('ga_urlutils_service');
           var crossOrigin = 'anonymous';
           var extent = gaMapUtils.intersectWithDefaultExtent(layer.extent ||
               ol.proj.get(gaGlobalOptions.defaultEpsg).getExtent());
+          var loaderror, loadsuccess, loadel = 'tile';
 
           // For some obscure reasons, on iOS, displaying a base 64 image
           // in a tile with an existing crossOrigin attribute generates
@@ -722,6 +762,7 @@ goog.require('ga_urlutils_service');
                 urls: getImageryUrls(wmtsTplUrl, subdomains),
                 crossOrigin: crossOrigin
               });
+              loaderror = 'tileloaderror';
             }
             olLayer = new ol.layer.Tile({
               extent: extent,
@@ -733,6 +774,7 @@ goog.require('ga_urlutils_service');
               source: olSource,
               useInterimTilesOnError: gaNetworkStatus.offline
             });
+            loadsuccess = 'tileloadend';
           } else if (layer.type == 'wms') {
             var wmsParams = {
               LAYERS: layer.wmsLayers,
@@ -750,6 +792,8 @@ goog.require('ga_urlutils_service');
                   crossOrigin: crossOrigin,
                   ratio: 1
                 });
+                loaderror = 'imageloaderror';
+                loadel = 'image';
               }
               olLayer = new ol.layer.Image({
                 minResolution: layer.minResolution,
@@ -758,6 +802,7 @@ goog.require('ga_urlutils_service');
                 source: olSource,
                 extent: extent
               });
+              loadsuccess = 'imageloadend';
             } else {
               if (!olSource) {
                 var subdomains = dfltWmsSubdomains;
@@ -774,6 +819,7 @@ goog.require('ga_urlutils_service');
                   tileLoadFunction: tileLoadFunction,
                   wrapX: false
                 });
+                loaderror = 'tileloaderror';
               }
               olLayer = new ol.layer.Tile({
                 minResolution: layer.minResolution,
@@ -784,6 +830,7 @@ goog.require('ga_urlutils_service');
                 useInterimTilesOnError: gaNetworkStatus.offline,
                 extent: extent
               });
+              loadsuccess = 'tileloadend';
             }
           } else if (layer.type == 'aggregate') {
             var subLayersIds = layer.subLayersIds;
@@ -850,7 +897,8 @@ goog.require('ga_urlutils_service');
               return that.getCesiumImageryProviderById(bodId);
             };
           }
-
+          retryOnError(loaderror, loadel, olSource);
+          refreshAfterRetry(loadsuccess, loadel, olSource, olLayer);
           return olLayer;
         };
 
